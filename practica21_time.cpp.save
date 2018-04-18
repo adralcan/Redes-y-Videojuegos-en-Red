@@ -1,0 +1,19 @@
+#include <iostream>
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <time.h>
+#include <errno.h>
+
+
+int main(){
+	
+	time_t * tloc = NULL;
+	time_t segundos = time(tloc);
+	if (segundos == -1) {
+	perror("Error")
+;	
+}	
+
+	return 1;
+}
