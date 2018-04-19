@@ -1,6 +1,6 @@
+#include <locale>
 #include <time.h>
 #include <stdio.h>
-#include <locale.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <iostream>
@@ -8,7 +8,7 @@
 
        int main(int argc, char *argv[])
        {
-           char outstr[4];
+           char outstr[200];
            time_t t;
            tm * tmp;
 
@@ -18,9 +18,12 @@
                perror("localtime");
            }
 
-           strftime(outstr, sizeof(outstr), argv[1], tmp);
+        strftime(outstr, sizeof(outstr), "Esamos en el año %Y", tmp);
 
-        std::cout << outstr << std::endl;
+        std::cout << outstr << std::endl; 
+	setlocale(LC_ALL, "es_ES.UTF-8");
+	strftime(outstr, sizeof(outstr), "Hoy es %A, %H:%M", tmp);
+	std::cout << outstr << std::endl;	
 	return 1;
        }
 
