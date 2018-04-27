@@ -23,7 +23,7 @@ int main (int argc, char **argv) {
 		return -1;
 	}
 	char host [NI_MAXHOST], server[NI_MAXSERV];
-	getnameinfo(res->ai_addr, res->ai_addrlen, host, sizeof(host), server, sizeof(server), NI_NUMERICHOST);
+	int aux = getnameinfo(res->ai_addr, res->ai_addrlen, host, sizeof(host), server, sizeof(server), NI_NUMERICHOST);
 	while(res != NULL){
 		std::cout << "Name: " << host << std::endl;
 		std::cout << "Family: " << res->ai_family << std::endl;	
