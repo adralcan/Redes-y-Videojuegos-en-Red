@@ -7,14 +7,17 @@
 #include <string.h>
 #include <iostream>
 #include <time.h>
+#include <locale>
 
 int main (int argc, char **argv) {
+
 	struct addrinfo hints;
 	struct addrinfo *res; // se usa para el bind()
 
 	memset((void*) &hints, '\0', sizeof(struct addrinfo));
-	hints.ai_family = AF_INET;
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_DGRAM; // DGRAM siempre es UDP
+	hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
 
 	int rc = getaddrinfo(argv[1], argv[2], &hints, &res);
 
@@ -31,20 +34,47 @@ int main (int argc, char **argv) {
 	freeaddrinfo(res);
 
 	while(true) {
+
 		char buf[256];
 		struct sockaddr  src_addr;
-		socklen_t  addrlen;
+		socklen_t addrlen = sizeof(src_addr); // Tamaño direccionIP
 
 		char host [NI_MAXHOST];
 		char serv [NI_MAXSERV];
-		
-		ssize_t s = recvfrom(sd, buf, 255, 0, /*IP y puerto del otro extremo (variable de salida)*/ &src_addr, /*argumento de entrada/salida*/&addrlen);
-		
+		std::cout << "Antes del recivef: " << buf  << std::endl;
+
+		size_t s = recvfrom(sd, buf, 255, 0, &src_addr, &addrlen);
+
 		// Utiliza lo devuelto por el recvfrom();
-		getnameinfo(&src_addr, &addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
+		getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
+		//std::cout << buf << endl;
 
 		std::cout << "Conexion: " << host << ":" <<	serv << "\n";
-		std::cout << "Mensaje: " << buf << std::endl;
+
+		char outstr[200];
+		time_t t;
+		tm * tmp;
+
+		t = time(NULL);
+		tmp = localtime(&t);
+		if (tmp == NULL) {
+		perror("localtime");
+		}
+		
+		switch (buf[0]) {
+			case 't':
+				strftime(outstr, sizeof(outstr), "%H:%M", tmp);
+				std::cout << outstr << std::endl;
+			break;	
+			case 'd':
+				strftime(outstr, sizeof(outstr), "Hoy es %d/%m/%y", tmp);
+				std::cout << outstr << std::endl;
+			break;
+
+			case 'q':
+			break;
+ 
+		}
 
 		sendto(/*En este caso solo hay un canal*/ sd, buf, s, 0, &src_addr, addrlen);
 
