@@ -41,7 +41,6 @@ int main (int argc, char **argv) {
 
 		char host [NI_MAXHOST];
 		char serv [NI_MAXSERV];
-		std::cout << "Antes del recivef: " << buf  << std::endl;
 
 		size_t s = recvfrom(sd, buf, 255, 0, &src_addr, &addrlen);
 
@@ -49,7 +48,7 @@ int main (int argc, char **argv) {
 		getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
 		//std::cout << buf << endl;
 
-		std::cout << "Conexion: " << host << ":" <<	serv << "\n";
+		std::cout << "Conexion: " << host << ":" <<	serv << std::endl;
 
 		char outstr[200];
 		time_t t;
@@ -72,11 +71,16 @@ int main (int argc, char **argv) {
 			break;
 
 			case 'q':
+			std::cout << "CLOSE" << std::endl;
+			shutdown(sd, 2); // 0 no quiero recibir datos, 1 no quiero enviar datos y 2 ambas
+			close(sd);
 			break;
- 
 		}
 
-		sendto(/*En este caso solo hay un canal*/ sd, buf, s, 0, &src_addr, addrlen);
+		if(buf[0] == 'q') // para que salga del bucle y deje de imprimir pero no estoy seguro de esto
+			break;
+		// No hsce falta devolverlo
+		//sendto(/*En este caso solo hay un canal*/ sd, buf, s, 0, &src_addr, addrlen);
 
 	}
 	return 0;
