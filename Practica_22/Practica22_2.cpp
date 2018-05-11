@@ -80,7 +80,7 @@ int main (int argc, char **argv) {
 		if(buf[0] == 'q') // para que salga del bucle y deje de imprimir pero no estoy seguro de esto
 			break;
 		// No hsce falta devolverlo
-		//sendto(/*En este caso solo hay un canal*/ sd, buf, s, 0, &src_addr, addrlen);
+		sendto(/*En este caso solo hay un canal*/ sd, buf, s, 0, &src_addr, addrlen);
 
 	}
 	return 0;
