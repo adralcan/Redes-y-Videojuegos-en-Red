@@ -40,6 +40,7 @@ int main (int argc, char **argv) {
 		socklen_t client_len = sizeof(client); 
 
 		// aceptamos el siguiente cliente que este en espera
+		// client_s es un descrptor de fichero para el socket aceptado
 		int client_s = accept(sd, &client, &client_len);
 		if(client_s == -1)
 			std::cout << "error accept(): " << gai_strerror(rc) << std::endl;	
@@ -56,11 +57,11 @@ int main (int argc, char **argv) {
 			//size_t s = recv(sd, buf, 255, 0);
 			size_t s = recvfrom(sd, buf, 255, 0, &client, &client_len);
 			if(s == -1){
-				std::cout << "error recv(): " << gai_strerror(rc) << std::endl;	
+				std::cout << "error recvfrom(): " << gai_strerror(rc) << std::endl;	
 				break;		
 			}
 			if(s == 0){ // ordenary shutdown
-				close(sd);
+				close(client_s); // para del descritor de fichero del socket que quieres cerrar (en estecaso el del cliente)
 				break;
 			}
 			std::cout << buf;
