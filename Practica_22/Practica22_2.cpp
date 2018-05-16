@@ -63,15 +63,15 @@ int main (int argc, char **argv) {
 		switch (buf[0]) {
 			case 't':
 				strftime(outstr, sizeof(outstr), "%H:%M", tmp);
-				std::cout << outstr << std::endl;
+				std::cout << 't' << std::endl;
 			break;	
 			case 'd':
 				strftime(outstr, sizeof(outstr), "Hoy es %d/%m/%y", tmp);
-				std::cout << outstr << std::endl;
+				std::cout << 'd' << std::endl;
 			break;
 
 			case 'q':
-			std::cout << "CLOSE" << std::endl;
+			std::cout << "Close" << std::endl;
 			shutdown(sd, 2); // 0 no quiero recibir datos, 1 no quiero enviar datos y 2 ambas
 			close(sd);
 			break;
@@ -80,7 +80,7 @@ int main (int argc, char **argv) {
 		if(buf[0] == 'q') // para que salga del bucle y deje de imprimir pero no estoy seguro de esto
 			break;
 		// No hsce falta devolverlo
-		sendto(/*En este caso solo hay un canal*/ sd, buf, s, 0, &src_addr, addrlen);
+		sendto(/*En este caso solo hay un canal*/ sd, outstr, sizeof(outstr), 0, &src_addr, addrlen);
 
 	}
 	return 0;

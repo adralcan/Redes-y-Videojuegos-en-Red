@@ -29,18 +29,21 @@ int main (int argc, char **argv) {
 	int sd = socket(res->ai_family, res->ai_socktype,
                        res->ai_protocol);
 
-	bind (sd, res->ai_addr, res->ai_addrlen);
+	bind (sd, res->ai_addr, res->ai_addrlen); // binds the socket with the addres
 
 	listen(sd, 1); // el socket sd se usara para aceptar peticiones de conexion
 	freeaddrinfo(res);
 
-	struct sockaddr client;
-	socklen_t client_len = sizeof(client); // Tamaño direccionIP
-
 	while(true) {
+
+		struct sockaddr client;
+		socklen_t client_len = sizeof(client); 
 
 		// aceptamos el siguiente cliente que este en espera
 		int client_s = accept(sd, &client, &client_len);
+		if(client_s == -1)
+			std::cout << "error accept(): " << gai_strerror(rc) << std::endl;	
+			
 		char host [NI_MAXHOST];
 		char serv [NI_MAXSERV];
 
@@ -50,12 +53,17 @@ int main (int argc, char **argv) {
 
 		while(true){
 			char buf[256];
-			size_t s = recv(sd, buf, 255, 0);
-			std::cout << buf;
+			//size_t s = recv(sd, buf, 255, 0);
+			size_t s = recvfrom(sd, buf, 255, 0, &client, &client_len);
+			if(s == -1){
+				std::cout << "error recv(): " << gai_strerror(rc) << std::endl;	
+				break;		
+			}
 			if(s == 0){ // ordenary shutdown
 				close(sd);
 				break;
 			}
+			std::cout << buf;
 			send(sd, buf, s, 0);
 		}
 	}
