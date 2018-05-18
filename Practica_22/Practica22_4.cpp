@@ -55,17 +55,14 @@ int main (int argc, char **argv) {
 		while(true){
 			char buf[256];
 			//size_t s = recv(sd, buf, 255, 0);
-			size_t s = recvfrom(sd, buf, 255, 0, &client, &client_len);
-			if(s == -1){
-				std::cout << "error recvfrom(): " << gai_strerror(rc) << std::endl;	
-				break;		
-			}
+			size_t s = recv(client_s, buf, 255, 0);
+			
 			if(s == 0){ // ordenary shutdown
 				close(client_s); // para del descritor de fichero del socket que quieres cerrar (en estecaso el del cliente)
 				break;
 			}
 			std::cout << buf;
-			send(sd, buf, s, 0);
+			send(client_s, buf, s, 0);
 		}
 	}
 	return 0;

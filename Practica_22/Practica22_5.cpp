@@ -36,7 +36,10 @@ int main (int argc, char **argv) {
 
 	freeaddrinfo(res);
 
+	struct sockaddr addr;
+	socklen_t addlen = sizeof(addr); 
 
+	connect(sd, &addr, addlen);
 	while(true){
 		char buf[256];
 		std::cin >> buf;

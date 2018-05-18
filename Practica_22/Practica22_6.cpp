@@ -61,7 +61,7 @@ public:
 				break;
 			}
 
-			if(msg[0] == 'q') // para que salga del bucle y deje de imprimir pero no estoy seguro de esto
+			if(buf[0] == 'q') // para que salga del bucle y deje de imprimir pero no estoy seguro de esto
 				break;
 			sendto(sd, outstr, sizeof(outstr), 0, &src_addr, addrlen);
 
@@ -69,7 +69,7 @@ public:
 	}
 private:
 	int sd;
-}
+};
 
 extend "C" void * start_routine(void * _st){
 	ServerThread * st = static_cast<ServerThread>(_st);
