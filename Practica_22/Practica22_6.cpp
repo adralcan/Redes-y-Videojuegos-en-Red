@@ -11,7 +11,7 @@
 #include <locale>
 #include <pthread.h>
 
-const int NUM_THREADS = 10; // por poner algo
+const int NUM_THREADS = 1; // por poner algo
 
 class ServerThread{
 public:
@@ -21,11 +21,14 @@ public:
 			char buf[256];
 			struct sockaddr  src_addr;
 			socklen_t addrlen = sizeof(src_addr); // Tamaño direccionIP
-
+			
+			int client_s = accept(sd, &src_addr, &addrlen);
+			if(client_s == -1)
+				std::cout << "error accept(): " << gai_strerror(client_s) << std::endl;	
+		
 			char host [NI_MAXHOST];
 			char serv [NI_MAXSERV];
-
-			size_t s = recvfrom(sd, buf, 255, 0, &src_addr, &addrlen);
+			size_t s = recv(client_s, buf, 255, 0);
 
 			// Utiliza lo devuelto por el recvfrom();
 			getnameinfo(&src_addr, addrlen, host, NI_MAXHOST, serv, NI_MAXSERV, NI_NUMERICHOST);
@@ -56,14 +59,14 @@ public:
 
 				case 'q':
 				std::cout << "Close" << std::endl;
-				shutdown(sd, 2); // 0 no quiero recibir datos, 1 no quiero enviar datos y 2 ambas
-				close(sd);
+				//shutdown(sd, 2); // 0 no quiero recibir datos, 1 no quiero enviar datos y 2 ambas
+				close(client_s);
 				break;
 			}
 
 			if(buf[0] == 'q') // para que salga del bucle y deje de imprimir pero no estoy seguro de esto
 				break;
-			sendto(sd, outstr, sizeof(outstr), 0, &src_addr, addrlen);
+			send(client_s, outstr, sizeof(outstr), 0);
 
 		}
 	}
@@ -71,9 +74,9 @@ private:
 	int sd;
 };
 
-extend "C" void * start_routine(void * _st){
-	ServerThread * st = static_cast<ServerThread>(_st);
-	st.do_msg();
+extern "C" void * start_routine(void * _st){
+	ServerThread * st = static_cast<ServerThread*>(_st);
+	st->do_msg();
 	return 0;
 }
 
@@ -100,6 +103,8 @@ int main (int argc, char **argv) {
 
 	bind (sd, res->ai_addr, res->ai_addrlen);
 
+	listen(sd, 1); // el socket sd se usara para aceptar peticiones de conexion
+
 	freeaddrinfo(res);
 
 // 2. INICIAMOS EL POOL DE THREADS
@@ -107,14 +112,17 @@ int main (int argc, char **argv) {
 		pthread_t thread_id;
 		pthread_attr_t atributes;
 		ServerThread * st = new ServerThread(sd);
-		pthread_attr_int(&atributes);
+		pthread_attr_init(&atributes);
 		pthread_attr_setdetachstate(&atributes, PTHREAD_CREATE_DETACHED);
-		pthread_create(&thread_id, &atributes, start_routine(st),
+		pthread_create(&thread_id, &atributes, start_routine,
 			static_cast<void*>(st));
 	}
 	while(true) {
-
-		char buf[256];
+		// Para que espere el thread principal
+		char c;
+		std::cin >> c;
+		if(c == 'q')
+			break;
 		
 	}
 	return 0;
